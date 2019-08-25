@@ -1,0 +1,23 @@
+name: Testing
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: actions/setup-node@v1
+
+    - name: install dependencies
+      run: npm install
+
+    - name: run tests
+      run: npm run coverage
+
+    - name: upload coverage report
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: npm install codecov -g && codecov

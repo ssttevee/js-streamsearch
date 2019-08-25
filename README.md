@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/ssttevee/streamsearch/branch/master/graph/badge.svg)](https://codecov.io/gh/ssttevee/streamsearch)
+
 # Description
 
 This module is a port of [streamsearch](https://github.com/mscdex/streamsearch) for es modules using Web APIs, namely `ReadableStream` and `Uint8Array`.
