@@ -3,7 +3,7 @@
   by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 */
 
-import { arrayToString, stringToArray } from './util';
+import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
 
 type CharFunc = (index: number) => number;
 

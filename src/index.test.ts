@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { makeStream } from '../testing/util';
 import { StreamSearch } from '.';
-import { arrayToString, stringToArray } from './util';
+import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
 
 async function test(needle: string, payload: string[], expected: string[], lookbehind: string) {
     const search = new StreamSearch(needle, makeStream(payload));

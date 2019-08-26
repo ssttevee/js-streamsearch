@@ -1,4 +1,4 @@
-import { stringToArray } from '../src/util';
+import { stringToArray } from '@ssttevee/u8-utils';
 
 export const BAD_INPUT_DIR = 'erroneous_input';
 

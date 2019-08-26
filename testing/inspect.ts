@@ -3,7 +3,7 @@ import path from 'path';
 
 import { StreamSearch } from '../src';
 import { makeStream, cmp } from './util';
-import { stringToArray } from '../src/util';
+import { stringToArray } from '@ssttevee/u8-utils';
 
 function allpos(haystack: string, needle: string): number[] {
     let start = 0;

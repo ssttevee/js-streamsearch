@@ -1,11 +1,11 @@
 {
   "name": "@ssttevee/streamsearch",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha -r source-map-support/register -r ts-node/register 'src/**/*.test.ts'",
+    "test": "mocha -r source-map-support/register -r ts-node/register -r esm 'src/**/*.test.ts'",
     "coverage": "nyc -a -n 'src/**/*.ts' -x 'src/**/*.test.ts' -e .ts -r lcov -r text npm test",
     "fuzz": "ts-node testing/fuzz.ts",
     "build": "tsc"
@@ -18,10 +18,14 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.2",
     "chai": "^4.2.0",
+    "esm": "^3.2.25",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "source-map-support": "^0.5.13",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "@ssttevee/u8-utils": "^0.1.3"
   }
 }
