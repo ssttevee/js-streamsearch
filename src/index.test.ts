@@ -9,7 +9,47 @@ async function test(needle: string, payload: string[], expected: string[], lookb
     expect(arrayToString((search as any)._lookbehind)).to.equal(lookbehind);
 }
 
+async function testIterator<T>(iter: AsyncIterableIterator<T>, expected: T[]) {
+    for (let i = 0; i < expected.length; i++) {
+        const { done, value } = await iter.next();
+        expect(done).to.be.false;
+        expect(value).to.deep.equal(expected[i]);
+    }
+
+    const { done, value } = await iter.next();
+    expect(done).to.be.true;
+    expect(value).to.be.undefined;
+}
+
 function suite(split: (s: string) => string[]) {
+    describe('iterators', function () {
+        describe('strings', function () {
+            it('should return the original payload', async function () {
+                await testIterator(
+                    new StreamSearch('z', makeStream(split('1234567890'))).strings(),
+                    ['1234567890'],
+                );
+                await testIterator(
+                    new StreamSearch('z', makeStream(split('12345z67890'))).strings(),
+                    ['12345', '67890'],
+                );
+            });
+        });
+
+        describe('arrays', function () {
+            it('should return the original payload', async function () {
+                await testIterator(
+                    new StreamSearch('z', makeStream(split('1234567890'))).arrays(),
+                    [stringToArray('1234567890')],
+                );
+                await testIterator(
+                    new StreamSearch('z', makeStream(split('12345z67890'))).arrays(),
+                    [stringToArray('12345'), stringToArray('67890')],
+                );
+            });
+        });
+    });
+
     describe('1 character needle', function () {
         it('should return the original payload if the needle cannot be found', async function () {
             await test('0', split('123456789'), ['123456789'], '');

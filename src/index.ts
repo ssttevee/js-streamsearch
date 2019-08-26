@@ -3,7 +3,7 @@
   by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 */
 
-import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
+import { arrayToString, stringToArray, mergeArrays } from '@ssttevee/u8-utils';
 
 type CharFunc = (index: number) => number;
 
@@ -69,6 +69,20 @@ export class StreamSearch {
         this._occ = createOccurenceTable(needle);
     }
 
+    public async *chunks(): AsyncIterableIterator<Uint8Array[]> {
+        let chunks: Uint8Array[] = [];
+        for await (const value of this) {
+            if (value === MATCH) {
+                yield chunks;
+                chunks = [];
+            } else {
+                chunks.push(value);
+            }
+        }
+
+        yield chunks;
+    }
+
     public async drainStrings(): Promise<string[]> {
         const segments: string[] = [];
         for await (const value of this.strings()) {
@@ -79,17 +93,15 @@ export class StreamSearch {
     }
 
     public async *strings(): AsyncIterableIterator<string> {
-        let segments: Uint8Array[] = [];
-        for await (const value of this) {
-            if (value === MATCH) {
-                yield segments.map(arrayToString).join('');
-                segments = [];
-            } else {
-                segments.push(value);
-            }
+        for await (const chunk of this.chunks()) {
+            yield chunk.map(arrayToString).join('');
         }
+    }
 
-        yield segments.map(arrayToString).join('');
+    public async *arrays(): AsyncIterableIterator<Uint8Array> {
+        for await (const chunk of this.chunks()) {
+            yield mergeArrays(...chunk);
+        }
     }
 
     public async *[Symbol.asyncIterator](): AsyncIterableIterator<Token> {
