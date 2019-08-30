@@ -1,18 +1,25 @@
 {
   "name": "@ssttevee/streamsearch",
   "type": "module",
-  "version": "0.1.2",
-  "description": "",
+  "version": "0.1.3",
+  "description": "A port of streamsearch for es modules using Web APIs",
   "main": "lib/index.js",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "test": "mocha -r source-map-support/register -r ts-node/register -r esm 'src/**/*.test.ts'",
     "coverage": "nyc -a -n 'src/**/*.ts' -x 'src/**/*.test.ts' -e .ts -r lcov -r text npm test",
     "fuzz": "ts-node testing/fuzz.ts",
     "build": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssttevee/js-streamsearch"
+  },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ssttevee",
+  "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.2.0",
     "@types/mocha": "^5.2.7",
