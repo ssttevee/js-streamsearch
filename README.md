@@ -7,7 +7,7 @@ This module is a port of [streamsearch](https://github.com/mscdex/streamsearch) 
 # Example
 
 ```js
-import { StreamSearch } from 'streamsearch';
+import { StreamSearch } from '@ssttevee/streamsearch';
 
 const res = await fetch('https://httpbin.org/stream/10');
 const search = new StreamSearch('\n', res.body);
