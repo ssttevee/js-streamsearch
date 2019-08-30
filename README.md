@@ -4,6 +4,12 @@
 
 This module is a port of [streamsearch](https://github.com/mscdex/streamsearch) for es modules using Web APIs, namely `ReadableStream` and `Uint8Array`.
 
+# Installation
+
+```bash
+npm install @ssttevee/streamsearch
+```
+
 # Example
 
 ```js
