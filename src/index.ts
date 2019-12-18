@@ -47,6 +47,8 @@ function createOccurenceTable(s: Uint8Array): number[] {
     return table;
 }
 
+const EOQ = Symbol('End of Queue');
+
 export const MATCH = Symbol('Match');
 
 type Token = Uint8Array | typeof MATCH;
@@ -58,7 +60,10 @@ export class StreamSearch {
 
     private _lookbehind = new Uint8Array();
 
-    public constructor(needle: Uint8Array | string, private _readableStream: ReadableStream<Uint8Array>) {
+    private _chunksQueue?: Array<Uint8Array | typeof EOQ>;
+    private _notify?: () => void;
+
+    public constructor(needle: Uint8Array | string, private _readableStream?: ReadableStream<Uint8Array>) {
         if (typeof needle === 'string') {
             this._needle = needle = stringToArray(needle);
         } else {
@@ -67,6 +72,10 @@ export class StreamSearch {
 
         this._lastChar = needle[needle.length - 1];
         this._occ = createOccurenceTable(needle);
+
+        if (!_readableStream) {
+            this._chunksQueue = [];
+        }
     }
 
     public async *chunks(): AsyncIterableIterator<Uint8Array[]> {
@@ -104,8 +113,12 @@ export class StreamSearch {
         }
     }
 
-    public async *[Symbol.asyncIterator](): AsyncIterableIterator<Token> {
-        const reader = this._readableStream.getReader();
+    public [Symbol.asyncIterator](): AsyncIterableIterator<Token> {
+        return this._readableStream ? this._streamIter() : this._queueIter();
+    }
+
+    private async *_streamIter(): AsyncIterableIterator<Token> {
+        const reader = this._readableStream!.getReader();
         try {
             while (true) {
                 const { done, value: chunk } = await reader.read();
@@ -127,6 +140,62 @@ export class StreamSearch {
             }
         } finally {
             reader.releaseLock();
+        }
+    }
+
+    private async *_queueIter(): AsyncIterableIterator<Token> {
+        while (true) {
+            let chunk: Uint8Array | typeof EOQ | undefined;
+            while (!(chunk = this._chunksQueue!.shift())) {
+                await new Promise((resolve) => this._notify = resolve);
+                this._notify = undefined;
+            }
+
+            if (chunk === EOQ) {
+                break;
+            }
+
+            let pos = 0;
+            let tokens: Token[];
+            while (pos !== chunk.length) {
+                [pos, ...tokens] = this._feed(chunk, pos);
+
+                yield* tokens;
+            }
+        }
+
+        if (this._lookbehind.length) {
+            yield this._lookbehind;
+        }
+    }
+
+    public push(...chunks: Uint8Array[]): void {
+        if (!this._chunksQueue) {
+            throw new Error('cannot call push with stream');
+        }
+
+        if (this._chunksQueue[this._chunksQueue.length - 1] === EOQ) {
+            throw new Error('cannot call push after close');
+        }
+
+        this._chunksQueue.push(...chunks);
+        if (this._notify) {
+            this._notify();
+        }
+    }
+
+    public close(): void {
+        if (!this._chunksQueue) {
+            throw new Error('cannot call close with stream');
+        }
+
+        if (this._chunksQueue[this._chunksQueue.length - 1] === EOQ) {
+            throw new Error('close was already called');
+        }
+
+        this._chunksQueue.push(EOQ);
+        if (this._notify) {
+            this._notify();
         }
     }
 

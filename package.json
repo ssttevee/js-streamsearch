@@ -1,9 +1,11 @@
 {
   "name": "@ssttevee/streamsearch",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A port of streamsearch for es modules using Web APIs",
   "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "source": "src/index.ts",
   "files": [
     "lib/**/*"
   ],
@@ -11,7 +13,7 @@
     "test": "mocha -r source-map-support/register -r ts-node/register -r esm 'src/**/*.test.ts'",
     "coverage": "nyc -a -n 'src/**/*.ts' -x 'src/**/*.test.ts' -e .ts -r lcov -r text npm test",
     "fuzz": "ts-node testing/fuzz.ts",
-    "build": "tsc"
+    "build": "tsc && mv lib/index.js lib/index.mjs && mv lib/index.js.map lib/index.mjs.map && sed -i 's/index.js.map/index.mjs.map/' lib/index.mjs && sed -i 's/index.js/index.mjs/' lib/index.mjs.map && tsc --module commonjs"
   },
   "repository": {
     "type": "git",
@@ -30,9 +32,9 @@
     "nyc": "^14.1.1",
     "source-map-support": "^0.5.13",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.7.3"
   },
   "dependencies": {
-    "@ssttevee/u8-utils": "^0.1.3"
+    "@ssttevee/u8-utils": "^0.1.4"
   }
 }
