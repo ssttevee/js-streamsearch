@@ -1,7 +1,6 @@
 {
   "name": "@ssttevee/streamsearch",
-  "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A port of streamsearch for es modules using Web APIs",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -10,7 +9,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "tape -r ts-node/register -r esm src/**/*.test.ts | tap-nyc",
+    "test": "tap --no-ts --node-arg=-r --node-arg=ts-node/register src/**/*.test.ts",
     "coverage": "nyc -a -n src/**/*.ts -x src/**/*.test.ts -e .ts -r lcov -r text npm test",
     "fuzz": "ts-node testing/fuzz.ts",
     "build": "rollup -c && tsc -d --emitDeclarationOnly --declarationDir lib",
@@ -25,19 +24,16 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-typescript": "^5.0.2",
-    "@types/tape": "^4.13.0",
-    "@types/tape-promise": "^4.0.1",
+    "@types/tap": "^14.10.0",
     "esm": "^3.2.25",
     "nyc": "^14.1.1",
     "rollup": "^2.23.1",
-    "tap-nyc": "^1.0.3",
-    "tape": "^5.0.1",
-    "tape-promise": "^4.0.0",
-    "ts-node": "^8.3.0",
+    "tap": "^14.10.8",
+    "ts-node": "^8.10.2",
     "tslib": "^2.0.1",
-    "typescript": "^3.7.3"
+    "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@ssttevee/u8-utils": "^0.1.4"
+    "@ssttevee/u8-utils": "~0.1.5"
   }
 }
