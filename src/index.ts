@@ -62,3 +62,4 @@ export async function* arrayIterator(iter: AsyncIterable<Token>): AsyncIterableI
 
 export * from './search';
 export * from './readable';
+export * from './queueable';
