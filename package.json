@@ -1,7 +1,7 @@
 {
   "name": "@ssttevee/streamsearch",
   "type": "module",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A port of streamsearch for es modules using Web APIs",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -10,10 +10,11 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "mocha -r source-map-support/register -r ts-node/register -r esm 'src/**/*.test.ts'",
-    "coverage": "nyc -a -n 'src/**/*.ts' -x 'src/**/*.test.ts' -e .ts -r lcov -r text npm test",
+    "test": "tape -r ts-node/register -r esm src/**/*.test.ts | tap-nyc",
+    "coverage": "nyc -a -n src/**/*.ts -x src/**/*.test.ts -e .ts -r lcov -r text npm test",
     "fuzz": "ts-node testing/fuzz.ts",
-    "build": "tsc && mv lib/index.js lib/index.mjs && mv lib/index.js.map lib/index.mjs.map && sed -i 's/index.js.map/index.mjs.map/' lib/index.mjs && sed -i 's/index.js/index.mjs/' lib/index.mjs.map && tsc --module commonjs"
+    "build": "rollup -c && tsc -d --emitDeclarationOnly --declarationDir lib",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -23,15 +24,17 @@
   "author": "ssttevee",
   "license": "MIT",
   "devDependencies": {
-    "@types/chai": "^4.2.0",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.2",
-    "chai": "^4.2.0",
+    "@rollup/plugin-typescript": "^5.0.2",
+    "@types/tape": "^4.13.0",
+    "@types/tape-promise": "^4.0.1",
     "esm": "^3.2.25",
-    "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "source-map-support": "^0.5.13",
+    "rollup": "^2.23.1",
+    "tap-nyc": "^1.0.3",
+    "tape": "^5.0.1",
+    "tape-promise": "^4.0.0",
     "ts-node": "^8.3.0",
+    "tslib": "^2.0.1",
     "typescript": "^3.7.3"
   },
   "dependencies": {

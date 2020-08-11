@@ -13,10 +13,10 @@ npm install @ssttevee/streamsearch
 # Example
 
 ```js
-import { StreamSearch } from '@ssttevee/streamsearch';
+import { ReadableStreamSearch } from '@ssttevee/streamsearch';
 
 const res = await fetch('https://httpbin.org/stream/10');
-const search = new StreamSearch('\n', res.body);
+const search = new ReadableStreamSearch('\n', res.body);
 
 for await (const str of search.strings()) {
     console.log(str);

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { StreamSearch } from '../src';
+import { ReadableStreamSearch } from '../src';
 import { makeStream, cmp, BAD_INPUT_DIR } from './util';
 
 function randomString(min: number, max: number): string {
@@ -49,8 +49,8 @@ function randomlySplice(haystack: string, needle: string): string {
         const chunks = randomlySplit(haystack);
         const expected = haystack.split(needle);
 
-        const search = new StreamSearch(needle, makeStream(chunks));
-        const result = await search.drainStrings();
+        const search = new ReadableStreamSearch(needle, makeStream(chunks));
+        const result = await search.allStrings();
 
         if (result.length !== expected.length || result.some((v, i) => !cmp(v, expected[i]))) {
             fs.mkdirSync(BAD_INPUT_DIR, { recursive: true });

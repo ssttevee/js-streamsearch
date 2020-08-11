@@ -5,8 +5,6 @@
             "webworker",
             "esnext",
         ],
-        "outDir": "lib/",
-        "declaration": true,
         "sourceMap": true,
         "strict": true,
         "esModuleInterop": true,
