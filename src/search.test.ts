@@ -1,4 +1,4 @@
-import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
+import * as u8 from 'uint8arrays';
 import t, { type Test } from 'tap';
 
 import { StreamSearch, MATCH } from './search.js';
@@ -8,7 +8,7 @@ function test(t: Test, needle: string, chunks: string[], expected: string[], loo
 
     const outchunks: Uint8Array[][] = [[]];
     for (const chunk of chunks) {
-        for (const token of search.feed(stringToArray(chunk))) {
+        for (const token of search.feed(u8.fromString(chunk))) {
             if (token === MATCH) {
                 outchunks.push([]);
             } else {
@@ -20,8 +20,8 @@ function test(t: Test, needle: string, chunks: string[], expected: string[], loo
     const end = search.end();
     outchunks[outchunks.length-1].push(end);
 
-    t.same(outchunks.map((chunks) => chunks.map(arrayToString).join('')), expected);
-    t.equal(arrayToString(end), lookbehind);
+    t.same(outchunks.map((chunks) => chunks.map((chunk) => u8.toString(chunk)).join('')), expected);
+    t.equal(u8.toString(end), lookbehind);
 }
 
 function suite(t: Test, name: string, split: (s: string) => string[]): void {
@@ -171,7 +171,7 @@ t.test('constructor', function (t: Test): void {
     });
 
     t.test('should work with Uint8Array', function (t: Test): void {
-        t.doesNotThrow(() => new StreamSearch(stringToArray(token)));
+        t.doesNotThrow(() => new StreamSearch(u8.fromString(token)));
 
         t.end();
     });

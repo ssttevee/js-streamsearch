@@ -3,7 +3,7 @@
   by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 */
 
-import { stringToArray } from '@ssttevee/u8-utils';
+import { fromString } from 'uint8arrays/from-string';
 
 type CharFunc = (index: number) => number;
 
@@ -60,7 +60,7 @@ export class StreamSearch {
 
     public constructor(needle: Uint8Array | string) {
         if (typeof needle === 'string') {
-            this._needle = needle = stringToArray(needle);
+            this._needle = needle = fromString(needle);
         } else {
             this._needle = needle;
         }

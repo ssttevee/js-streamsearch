@@ -1,4 +1,4 @@
-import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
+import * as u8 from 'uint8arrays';
 import t, { type Test } from 'tap';
 
 import { allStrings, arrayIterator, split } from './index.js';
@@ -19,7 +19,7 @@ async function testSuite(t: Test, makeIter: (needle: string, chunks: string[]) =
             for (let i = 0; i < expected.length; i++) {
                 const { done, value } = await iter.next();
                 t.notOk(done);
-                t.equal(arrayToString(value), expected[i]);
+                t.equal(u8.toString(value), expected[i]);
             }
 
             const { done, value } = await iter.next();
@@ -42,7 +42,7 @@ t.test('readable', async function (t: Test): Promise<void> {
                             const s = chunks[i++];
                             return {
                                 done: false,
-                                value: stringToArray(s),
+                                value: u8.fromString(s),
                             };
                         } else {
                             return { done: true };
@@ -61,7 +61,7 @@ t.test('readable', async function (t: Test): Promise<void> {
 t.test('queueable', async function (t: Test): Promise<void> {
     function makeIter(needle: string, chunks: string[]): QueueableStreamSearch {
         const s = new QueueableStreamSearch(needle);
-        s.push(...chunks.map(stringToArray));
+        s.push(...chunks.map((chunk) => u8.fromString(chunk)));
         s.close();
         return s;
     }
@@ -74,7 +74,7 @@ t.test('split', function (t: Test): void {
     const text = 'hello world foo bar';
 
     t.same(
-        split(stringToArray(text), ' ').map(arrayToString),
+        split(u8.fromString(text), ' ').map((chunk) => u8.toString(chunk)),
         text.split(' '),
     );
 

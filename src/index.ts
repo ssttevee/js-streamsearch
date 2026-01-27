@@ -1,4 +1,5 @@
-import { mergeArrays, arrayToString } from '@ssttevee/u8-utils';
+import { concat } from 'uint8arrays/concat';
+import { toString } from 'uint8arrays/to-string';
 import { MATCH, StreamSearch, type Token } from './search.js';
 
 export function splitChunks(chunks: Uint8Array[], needle: Uint8Array | string): Uint8Array[] {
@@ -18,7 +19,7 @@ export function splitChunks(chunks: Uint8Array[], needle: Uint8Array | string): 
     const end = search.end();
     outchunks[outchunks.length - 1].push(end);
 
-    return outchunks.map((chunks) => mergeArrays(...chunks));
+    return outchunks.map((chunks) => concat(chunks));
 }
 
 export function split(buf: Uint8Array, needle: Uint8Array | string): Uint8Array[] {
@@ -40,8 +41,8 @@ export async function* chunksIterator(iter: AsyncIterable<Token>): AsyncIterable
 }
 
 export async function* stringIterator(iter: AsyncIterable<Token>): AsyncIterableIterator<string> {
-    for await (const chunk of chunksIterator(iter)) {
-        yield chunk.map(arrayToString).join('');
+    for await (const chunk of arrayIterator(iter)) {
+        yield toString(chunk);
     }
 }
 
@@ -56,7 +57,7 @@ export async function allStrings(iter: AsyncIterable<Token>): Promise<string[]> 
 
 export async function* arrayIterator(iter: AsyncIterable<Token>): AsyncIterableIterator<Uint8Array> {
     for await (const chunk of chunksIterator(iter)) {
-        yield mergeArrays(...chunk);
+        yield concat(chunk);
     }
 }
 
