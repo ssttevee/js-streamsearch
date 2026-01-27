@@ -1,4 +1,4 @@
-import { StreamSearch, Token } from './search';
+import { StreamSearch, type Token } from './search.js';
 
 export class ReadableStreamSearch {
     private _search: StreamSearch;

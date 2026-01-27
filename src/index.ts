@@ -1,5 +1,5 @@
 import { mergeArrays, arrayToString } from '@ssttevee/u8-utils';
-import { StreamSearch, MATCH, Token } from './search';
+import { MATCH, StreamSearch, type Token } from './search.js';
 
 export function splitChunks(chunks: Uint8Array[], needle: Uint8Array | string): Uint8Array[] {
     const search = new StreamSearch(needle);
@@ -60,6 +60,6 @@ export async function* arrayIterator(iter: AsyncIterable<Token>): AsyncIterableI
     }
 }
 
-export * from './search';
-export * from './readable';
-export * from './queueable';
+export * from './queueable.js';
+export * from './readable.js';
+export * from './search.js';

@@ -1,4 +1,4 @@
-import { StreamSearch, Token } from './search';
+import { StreamSearch, type Token } from './search.js';
 
 const EOQ = Symbol('End of Queue');
 
@@ -39,7 +39,7 @@ export class QueueableStreamSearch {
         while (true) {
             let chunk: Uint8Array | typeof EOQ | undefined;
             while (!(chunk = this._chunksQueue!.shift())) {
-                await new Promise((resolve) => this._notify = resolve);
+                await new Promise<void>((resolve) => this._notify = resolve);
                 this._notify = undefined;
             }
 

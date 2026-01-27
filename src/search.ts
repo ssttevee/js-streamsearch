@@ -25,7 +25,7 @@ function jsmemcmp(
     const fn1 = coerce(buf1);
     const fn2 = coerce(buf2);
 
-    for (var i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
         if (fn1(pos1 + i) !== fn2(pos2 + i)) {
             return false;
         }

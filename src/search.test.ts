@@ -1,9 +1,7 @@
 import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
-import t from 'tap';
+import t, { type Test } from 'tap';
 
-import { StreamSearch, MATCH } from './search';
-
-type Test = typeof t.Test.prototype;
+import { StreamSearch, MATCH } from './search.js';
 
 function test(t: Test, needle: string, chunks: string[], expected: string[], lookbehind: string): void {
     const search = new StreamSearch(needle);
@@ -22,7 +20,7 @@ function test(t: Test, needle: string, chunks: string[], expected: string[], loo
     const end = search.end();
     outchunks[outchunks.length-1].push(end);
 
-    t.deepEqual(outchunks.map((chunks) => chunks.map(arrayToString).join('')), expected);
+    t.same(outchunks.map((chunks) => chunks.map(arrayToString).join('')), expected);
     t.equal(arrayToString(end), lookbehind);
 }
 

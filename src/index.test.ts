@@ -1,18 +1,16 @@
 import { arrayToString, stringToArray } from '@ssttevee/u8-utils';
-import t from 'tap';
+import t, { type Test } from 'tap';
 
-import { allStrings, arrayIterator, split } from './index';
-import { ReadableStreamSearch } from './readable';
-import { QueueableStreamSearch } from './queueable';
-import { Token } from './search';
-
-type Test = typeof t.Test.prototype;
+import { allStrings, arrayIterator, split } from './index.js';
+import { QueueableStreamSearch } from './queueable.js';
+import { ReadableStreamSearch } from './readable.js';
+import type { Token } from './search.js';
 
 async function testSuite(t: Test, makeIter: (needle: string, chunks: string[]) => AsyncIterable<Token>, needle: string, payload: string, expected: string[]): Promise<void> {
     await Promise.all([2, 3, 4, 5, 6].map(async (chunkSize: number) => {
         const chunks = Array.from({ length: Math.ceil(payload.length / chunkSize) }, (_: undefined, i: number) => payload.substr(i * chunkSize, chunkSize));
         t.test(`chunk size ${chunkSize}`, async function (t: Test): Promise<void> {
-            t.deepEqual(
+            t.same(
                 await allStrings(makeIter(needle, chunks)),
                 expected,
             );
@@ -75,7 +73,7 @@ t.test('queueable', async function (t: Test): Promise<void> {
 t.test('split', function (t: Test): void {
     const text = 'hello world foo bar';
 
-    t.deepEqual(
+    t.same(
         split(stringToArray(text), ' ').map(arrayToString),
         text.split(' '),
     );
