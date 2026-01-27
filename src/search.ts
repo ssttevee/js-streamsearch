@@ -3,30 +3,18 @@
   by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 */
 
+import { concat } from "uint8arrays/concat";
 import { fromString } from 'uint8arrays/from-string';
 
-type CharFunc = (index: number) => number;
-
-function coerce(a: Uint8Array | CharFunc): CharFunc {
-    if (a instanceof Uint8Array) {
-        return (index: number) => a[index];
-    }
-
-    return a;
-}
-
 function jsmemcmp(
-    buf1: Uint8Array | CharFunc,
+    buf1: Uint8Array,
     pos1: number,
-    buf2: Uint8Array | CharFunc,
+    buf2: Uint8Array,
     pos2: number,
     len: number,
 ) {
-    const fn1 = coerce(buf1);
-    const fn2 = coerce(buf2);
-
-    for (let i = 0; i < len; ++i) {
-        if (fn1(pos1 + i) !== fn2(pos2 + i)) {
+    for (let i = 0; i < len; i++) {
+        if (buf1[pos1 + i] !== buf2[pos2 + i]) {
             return false;
         }
     }
@@ -56,7 +44,7 @@ export class StreamSearch {
     private _lastChar: number;
     private _occ: number[];
 
-    private _lookbehind = new Uint8Array();
+    private _lookbehind: Uint8Array = new Uint8Array();
 
     public constructor(needle: Uint8Array | string) {
         if (typeof needle === 'string') {
@@ -110,11 +98,12 @@ export class StreamSearch {
             // or until (condition 3)
             //   the character to look at lies outside the haystack.
             while (pos < 0 && pos <= data.length - this._needle.length) {
-                const ch = this._charAt(data, pos + this._needle.length - 1);
+                const cpos = pos + this._needle.length - 1;
+                const ch = cpos < 0 ? this._lookbehind[this._lookbehind.length + cpos] : data[cpos];
 
                 if (ch === this._lastChar && this._memcmp(data, pos, this._needle.length - 1)) {
                     if (pos > -this._lookbehind.length) {
-                        tokens.push(this._lookbehind.slice(0, this._lookbehind.length + pos));
+                        tokens.push(this._lookbehind.subarray(0, this._lookbehind.length + pos));
                     }
 
                     tokens.push(MATCH);
@@ -155,11 +144,11 @@ export class StreamSearch {
 
                 if (bytesToCutOff > 0) {
                     // The cut off data is guaranteed not to contain the needle.
-                    tokens.push(this._lookbehind.slice(0, bytesToCutOff));
-                    this._lookbehind = this._lookbehind.slice(bytesToCutOff);
+                    tokens.push(this._lookbehind.subarray(0, bytesToCutOff));
+                    this._lookbehind = this._lookbehind.subarray(bytesToCutOff);
                 }
 
-                this._lookbehind = Uint8Array.from(new Array(this._lookbehind.length + data.length), (_, i) => this._charAt(data, i - this._lookbehind.length));
+                this._lookbehind = concat([this._lookbehind, data]);
 
                 return [data.length, ...tokens];
             }
@@ -177,7 +166,7 @@ export class StreamSearch {
                 && data[pos] === this._needle[0]
                 && jsmemcmp(this._needle, 0, data, pos, this._needle.length - 1)) {
                 if (pos > buf_pos) {
-                    tokens.push(data.slice(buf_pos, pos));
+                    tokens.push(data.subarray(buf_pos, pos));
                 }
 
                 tokens.push(MATCH);
@@ -201,27 +190,31 @@ export class StreamSearch {
             }
 
             if (pos < data.length) {
-                this._lookbehind = data.slice(pos);
+                this._lookbehind = data.subarray(pos);
             }
         }
 
         // Everything until pos is guaranteed not to contain needle data.
         if (pos > 0) {
-            tokens.push(data.slice(buf_pos, pos < data.length ? pos : data.length));
+            tokens.push(data.subarray(buf_pos, pos < data.length ? pos : data.length));
         }
 
         return [data.length, ...tokens];
     }
 
-    private _charAt(data: Uint8Array, pos: number): number {
+    private _memcmp(data: Uint8Array, pos: number, len: number): boolean {
         if (pos < 0) {
-            return this._lookbehind[this._lookbehind.length + pos];
+            if (!jsmemcmp(this._lookbehind, this._lookbehind.length + pos, this._needle, 0, Math.min(-pos, len)) ) {
+                return false;
+            }
+
+            if (len < -pos) {
+                return true;
+            }
+
+            len += pos;
         }
 
-        return data[pos];
-    };
-
-    private _memcmp(data: Uint8Array, pos: number, len: number): boolean {
-        return jsmemcmp(this._charAt.bind(this, data), pos, this._needle, 0, len);
-    };
+        return jsmemcmp(data, Math.max(0, pos), this._needle, -Math.min(0, pos), len);
+    }
 }
