@@ -4,217 +4,246 @@
 */
 
 import { concat } from "uint8arrays/concat";
-import { fromString } from 'uint8arrays/from-string';
+import { fromString } from "uint8arrays/from-string";
 
 function jsmemcmp(
-    buf1: Uint8Array,
-    pos1: number,
-    buf2: Uint8Array,
-    pos2: number,
-    len: number,
+	buf1: Uint8Array,
+	pos1: number,
+	buf2: Uint8Array,
+	pos2: number,
+	len: number,
 ) {
-    for (let i = 0; i < len; i++) {
-        if (buf1[pos1 + i] !== buf2[pos2 + i]) {
-            return false;
-        }
-    }
+	for (let i = 0; i < len; i++) {
+		if (buf1[pos1 + i] !== buf2[pos2 + i]) {
+			return false;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 function createOccurenceTable(s: Uint8Array): number[] {
-    // Populate occurrence table with analysis of the needle,
-    // ignoring last letter.
-    const table = new Array(256).fill(s.length);
-    if (s.length > 1) {
-        for (let i = 0; i < s.length - 1; i++) {
-            table[s[i]] = s.length - 1 - i;
-        }
-    }
+	// Populate occurrence table with analysis of the needle,
+	// ignoring last letter.
+	const table = new Array(256).fill(s.length);
+	if (s.length > 1) {
+		for (let i = 0; i < s.length - 1; i++) {
+			table[s[i]] = s.length - 1 - i;
+		}
+	}
 
-    return table;
+	return table;
 }
 
-export const MATCH = Symbol('Match');
+export const MATCH = Symbol("Match");
 
 export type Token = Uint8Array | typeof MATCH;
 
 export class StreamSearch {
-    private _needle: Uint8Array;
-    private _lastChar: number;
-    private _occ: number[];
+	private _needle: Uint8Array;
+	private _lastChar: number;
+	private _occ: number[];
 
-    private _lookbehind: Uint8Array = new Uint8Array();
+	private _lookbehind: Uint8Array = new Uint8Array();
 
-    public constructor(needle: Uint8Array | string) {
-        if (typeof needle === 'string') {
-            this._needle = needle = fromString(needle);
-        } else {
-            this._needle = needle;
-        }
+	public constructor(needle: Uint8Array | string) {
+		if (typeof needle === "string") {
+			this._needle = needle = fromString(needle);
+		} else {
+			this._needle = needle;
+		}
 
-        this._lastChar = needle[needle.length - 1];
-        this._occ = createOccurenceTable(needle);
-    }
+		this._lastChar = needle[needle.length - 1];
+		this._occ = createOccurenceTable(needle);
+	}
 
-    public feed(chunk: Uint8Array): Token[] {
-        let pos = 0;
-        let tokens: Token[];
-        const allTokens: Token[] = [];
-        while (pos !== chunk.length) {
-            [pos, ...tokens] = this._feed(chunk, pos);
-            allTokens.push(...tokens);
-        }
+	public feed(chunk: Uint8Array): Token[] {
+		let pos = 0;
+		let tokens: Token[];
+		const allTokens: Token[] = [];
+		while (pos !== chunk.length) {
+			[pos, ...tokens] = this._feed(chunk, pos);
+			allTokens.push(...tokens);
+		}
 
-        return allTokens;
-    }
+		return allTokens;
+	}
 
-    public end(): Uint8Array {
-        const tail = this._lookbehind;
-        this._lookbehind = new Uint8Array();
-        return tail;
-    }
+	public end(): Uint8Array {
+		const tail = this._lookbehind;
+		this._lookbehind = new Uint8Array();
+		return tail;
+	}
 
-    private _feed(data: Uint8Array, buf_pos: number): [number, ...Token[]] {
-        const tokens: Token[] = [];
+	private _feed(data: Uint8Array, buf_pos: number): [number, ...Token[]] {
+		const tokens: Token[] = [];
 
-        // Positive: points to a position in `data`
-        //           pos == 3 points to data[3]
-        // Negative: points to a position in the lookbehind buffer
-        //           pos == -2 points to lookbehind[lookbehind_size - 2]
-        let pos = -this._lookbehind.length;
+		// Positive: points to a position in `data`
+		//           pos == 3 points to data[3]
+		// Negative: points to a position in the lookbehind buffer
+		//           pos == -2 points to lookbehind[lookbehind_size - 2]
+		let pos = -this._lookbehind.length;
 
-        if (pos < 0) {
-            // Lookbehind buffer is not empty. Perform Boyer-Moore-Horspool
-            // search with character lookup code that considers both the
-            // lookbehind buffer and the current round's haystack data.
-            //
-            // Loop until (condition 1)
-            //   there is a match.
-            // or until
-            //   we've moved past the position that requires the
-            //   lookbehind buffer. In this case we switch to the
-            //   optimized loop.
-            // or until (condition 3)
-            //   the character to look at lies outside the haystack.
-            while (pos < 0 && pos <= data.length - this._needle.length) {
-                const cpos = pos + this._needle.length - 1;
-                const ch = cpos < 0 ? this._lookbehind[this._lookbehind.length + cpos] : data[cpos];
+		if (pos < 0) {
+			// Lookbehind buffer is not empty. Perform Boyer-Moore-Horspool
+			// search with character lookup code that considers both the
+			// lookbehind buffer and the current round's haystack data.
+			//
+			// Loop until (condition 1)
+			//   there is a match.
+			// or until
+			//   we've moved past the position that requires the
+			//   lookbehind buffer. In this case we switch to the
+			//   optimized loop.
+			// or until (condition 3)
+			//   the character to look at lies outside the haystack.
+			while (pos < 0 && pos <= data.length - this._needle.length) {
+				const cpos = pos + this._needle.length - 1;
+				const ch =
+					cpos < 0
+						? this._lookbehind[this._lookbehind.length + cpos]
+						: data[cpos];
 
-                if (ch === this._lastChar && this._memcmp(data, pos, this._needle.length - 1)) {
-                    if (pos > -this._lookbehind.length) {
-                        tokens.push(this._lookbehind.subarray(0, this._lookbehind.length + pos));
-                    }
+				if (
+					ch === this._lastChar &&
+					this._memcmp(data, pos, this._needle.length - 1)
+				) {
+					if (pos > -this._lookbehind.length) {
+						tokens.push(
+							this._lookbehind.subarray(0, this._lookbehind.length + pos),
+						);
+					}
 
-                    tokens.push(MATCH);
+					tokens.push(MATCH);
 
-                    this._lookbehind = new Uint8Array();
+					this._lookbehind = new Uint8Array();
 
-                    return [pos + this._needle.length, ...tokens];
-                } else {
-                    pos += this._occ[ch];
-                }
-            }
+					return [pos + this._needle.length, ...tokens];
+				} else {
+					pos += this._occ[ch];
+				}
+			}
 
-            // No match.
+			// No match.
 
-            if (pos < 0) {
-                // There's too little data for Boyer-Moore-Horspool to run,
-                // so we'll use a different algorithm to skip as much as
-                // we can.
-                // Forward pos until
-                //   the trailing part of lookbehind + data
-                //   looks like the beginning of the needle
-                // or until
-                //   pos == 0
-                while (pos < 0 && !this._memcmp(data, pos, data.length - pos)) {
-                    pos++;
-                }
-            }
+			if (pos < 0) {
+				// There's too little data for Boyer-Moore-Horspool to run,
+				// so we'll use a different algorithm to skip as much as
+				// we can.
+				// Forward pos until
+				//   the trailing part of lookbehind + data
+				//   looks like the beginning of the needle
+				// or until
+				//   pos == 0
+				while (pos < 0 && !this._memcmp(data, pos, data.length - pos)) {
+					pos++;
+				}
+			}
 
-            if (pos >= 0) {
-                // Discard lookbehind buffer.
-                tokens.push(this._lookbehind);
-                this._lookbehind = new Uint8Array();
-            } else {
-                // Cut off part of the lookbehind buffer that has
-                // been processed and append the entire haystack
-                // into it.
-                const bytesToCutOff = this._lookbehind.length + pos;
+			if (pos >= 0) {
+				// Discard lookbehind buffer.
+				tokens.push(this._lookbehind);
+				this._lookbehind = new Uint8Array();
+			} else {
+				// Cut off part of the lookbehind buffer that has
+				// been processed and append the entire haystack
+				// into it.
+				const bytesToCutOff = this._lookbehind.length + pos;
 
-                if (bytesToCutOff > 0) {
-                    // The cut off data is guaranteed not to contain the needle.
-                    tokens.push(this._lookbehind.subarray(0, bytesToCutOff));
-                    this._lookbehind = this._lookbehind.subarray(bytesToCutOff);
-                }
+				if (bytesToCutOff > 0) {
+					// The cut off data is guaranteed not to contain the needle.
+					tokens.push(this._lookbehind.subarray(0, bytesToCutOff));
+					this._lookbehind = this._lookbehind.subarray(bytesToCutOff);
+				}
 
-                this._lookbehind = concat([this._lookbehind, data]);
+				this._lookbehind = concat([this._lookbehind, data]);
 
-                return [data.length, ...tokens];
-            }
-        }
+				return [data.length, ...tokens];
+			}
+		}
 
-        pos += buf_pos;
+		pos += buf_pos;
 
-        // Lookbehind buffer is now empty. Perform Boyer-Moore-Horspool
-        // search with optimized character lookup code that only considers
-        // the current round's haystack data.
-        while (pos <= data.length - this._needle.length) {
-            const ch = data[pos + this._needle.length - 1];
+		// Lookbehind buffer is now empty. Perform Boyer-Moore-Horspool
+		// search with optimized character lookup code that only considers
+		// the current round's haystack data.
+		while (pos <= data.length - this._needle.length) {
+			const ch = data[pos + this._needle.length - 1];
 
-            if (ch === this._lastChar
-                && data[pos] === this._needle[0]
-                && jsmemcmp(this._needle, 0, data, pos, this._needle.length - 1)) {
-                if (pos > buf_pos) {
-                    tokens.push(data.subarray(buf_pos, pos));
-                }
+			if (
+				ch === this._lastChar &&
+				data[pos] === this._needle[0] &&
+				jsmemcmp(this._needle, 0, data, pos, this._needle.length - 1)
+			) {
+				if (pos > buf_pos) {
+					tokens.push(data.subarray(buf_pos, pos));
+				}
 
-                tokens.push(MATCH);
+				tokens.push(MATCH);
 
-                return [pos + this._needle.length, ...tokens];
-            } else {
-                pos += this._occ[ch];
-            }
-        }
+				return [pos + this._needle.length, ...tokens];
+			} else {
+				pos += this._occ[ch];
+			}
+		}
 
-        // There was no match. If there's trailing haystack data that we cannot
-        // match yet using the Boyer-Moore-Horspool algorithm (because the trailing
-        // data is less than the needle size) then match using a modified
-        // algorithm that starts matching from the beginning instead of the end.
-        // Whatever trailing data is left after running this algorithm is added to
-        // the lookbehind buffer.
-        if (pos < data.length) {
-            while (pos < data.length && (data[pos] !== this._needle[0]
-                || !jsmemcmp(data, pos, this._needle, 0, data.length - pos))) {
-                ++pos;
-            }
+		// There was no match. If there's trailing haystack data that we cannot
+		// match yet using the Boyer-Moore-Horspool algorithm (because the trailing
+		// data is less than the needle size) then match using a modified
+		// algorithm that starts matching from the beginning instead of the end.
+		// Whatever trailing data is left after running this algorithm is added to
+		// the lookbehind buffer.
+		if (pos < data.length) {
+			while (
+				pos < data.length &&
+				(data[pos] !== this._needle[0] ||
+					!jsmemcmp(data, pos, this._needle, 0, data.length - pos))
+			) {
+				++pos;
+			}
 
-            if (pos < data.length) {
-                this._lookbehind = data.subarray(pos);
-            }
-        }
+			if (pos < data.length) {
+				this._lookbehind = data.subarray(pos);
+			}
+		}
 
-        // Everything until pos is guaranteed not to contain needle data.
-        if (pos > 0) {
-            tokens.push(data.subarray(buf_pos, pos < data.length ? pos : data.length));
-        }
+		// Everything until pos is guaranteed not to contain needle data.
+		if (pos > 0) {
+			tokens.push(
+				data.subarray(buf_pos, pos < data.length ? pos : data.length),
+			);
+		}
 
-        return [data.length, ...tokens];
-    }
+		return [data.length, ...tokens];
+	}
 
-    private _memcmp(data: Uint8Array, pos: number, len: number): boolean {
-        if (pos < 0) {
-            if (!jsmemcmp(this._lookbehind, this._lookbehind.length + pos, this._needle, 0, Math.min(-pos, len)) ) {
-                return false;
-            }
+	private _memcmp(data: Uint8Array, pos: number, len: number): boolean {
+		if (pos < 0) {
+			if (
+				!jsmemcmp(
+					this._lookbehind,
+					this._lookbehind.length + pos,
+					this._needle,
+					0,
+					Math.min(-pos, len),
+				)
+			) {
+				return false;
+			}
 
-            if (len < -pos) {
-                return true;
-            }
+			if (len < -pos) {
+				return true;
+			}
 
-            len += pos;
-        }
+			len += pos;
+		}
 
-        return jsmemcmp(data, Math.max(0, pos), this._needle, -Math.min(0, pos), len);
-    }
+		return jsmemcmp(
+			data,
+			Math.max(0, pos),
+			this._needle,
+			-Math.min(0, pos),
+			len,
+		);
+	}
 }

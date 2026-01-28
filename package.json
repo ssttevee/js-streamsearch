@@ -1,86 +1,87 @@
 {
-  "name": "@ssttevee/streamsearch",
-  "version": "0.3.1",
-  "type": "module",
-  "description": "A port of streamsearch for es modules using Web APIs",
-  "main": "lib/index.js",
-  "module": "lib/index.mjs",
-  "source": "src/index.ts",
-  "files": [
-    "lib/**/*"
-  ],
-  "scripts": {
-    "test": "tap run",
-    "coverage": "npm run test --  --coverage-report=lcov --coverage-report=text",
-    "fuzz": "ts-node testing/fuzz.ts",
-    "build": "rollup -c && tsc -d --emitDeclarationOnly --declarationDir lib",
-    "prepack": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ssttevee/js-streamsearch"
-  },
-  "keywords": [],
-  "author": "ssttevee",
-  "license": "MIT",
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^12.3.0",
-    "@types/tap": "^18.0.0",
-    "esm": "^3.2.25",
-    "rollup": "^4.57.0",
-    "tap": "^21.5.0",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "uint8arrays": "^5.1.0"
-  },
-  "exports": {
-    ".": {
-      "import": "./lib/index.mjs",
-      "require": "./lib/index.cjs",
-      "types": "./lib/index.d.ts"
-    },
-    "./iterate-chunks": {
-      "import": "./lib/iterate-chunks.mjs",
-      "require": "./lib/iterate-chunks.cjs",
-      "types": "./lib/iterate-chunks.d.ts"
-    },
-    "./iterate-chunks-concatted": {
-      "import": "./lib/iterate-chunks-concatted.mjs",
-      "require": "./lib/iterate-chunks-concatted.cjs",
-      "types": "./lib/iterate-chunks-concatted.d.ts"
-    },
-    "./iterate-strings": {
-      "import": "./lib/iterate-strings.mjs",
-      "require": "./lib/iterate-strings.cjs",
-      "types": "./lib/iterate-strings.d.ts"
-    },
-    "./iterator": {
-      "import": "./lib/iterator.mjs",
-      "require": "./lib/iterator.cjs",
-      "types": "./lib/iterator.d.ts"
-    },
-    "./queuable": {
-      "import": "./lib/queuable.mjs",
-      "require": "./lib/queuable.cjs",
-      "types": "./lib/queuable.d.ts"
-    },
-    "./readable": {
-      "import": "./lib/readable.mjs",
-      "require": "./lib/readable.cjs",
-      "types": "./lib/readable.d.ts"
-    },
-    "./search": {
-      "import": "./lib/search.mjs",
-      "require": "./lib/search.cjs",
-      "types": "./lib/search.d.ts"
-    },
-    "./split": {
-      "import": "./lib/split.mjs",
-      "require": "./lib/split.cjs",
-      "types": "./lib/split.d.ts"
-    }
-  }
+	"name": "@ssttevee/streamsearch",
+	"version": "0.3.1",
+	"type": "module",
+	"description": "A port of streamsearch for es modules using Web APIs",
+	"main": "lib/index.js",
+	"module": "lib/index.mjs",
+	"source": "src/index.ts",
+	"files": [
+		"lib/**/*"
+	],
+	"scripts": {
+		"test": "tap run",
+		"coverage": "npm run test --  --coverage-report=lcov --coverage-report=text",
+		"fuzz": "ts-node testing/fuzz.ts",
+		"build": "rollup -c && tsc -d --emitDeclarationOnly --declarationDir lib",
+		"prepack": "npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ssttevee/js-streamsearch"
+	},
+	"keywords": [],
+	"author": "ssttevee",
+	"license": "MIT",
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.13",
+		"@rollup/plugin-typescript": "^12.3.0",
+		"@types/tap": "^18.0.0",
+		"esm": "^3.2.25",
+		"rollup": "^4.57.0",
+		"tap": "^21.5.0",
+		"ts-node": "^10.9.2",
+		"tslib": "^2.8.1",
+		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"uint8arrays": "^5.1.0"
+	},
+	"exports": {
+		".": {
+			"import": "./lib/index.mjs",
+			"require": "./lib/index.cjs",
+			"types": "./lib/index.d.ts"
+		},
+		"./iterate-chunks": {
+			"import": "./lib/iterate-chunks.mjs",
+			"require": "./lib/iterate-chunks.cjs",
+			"types": "./lib/iterate-chunks.d.ts"
+		},
+		"./iterate-chunks-concatted": {
+			"import": "./lib/iterate-chunks-concatted.mjs",
+			"require": "./lib/iterate-chunks-concatted.cjs",
+			"types": "./lib/iterate-chunks-concatted.d.ts"
+		},
+		"./iterate-strings": {
+			"import": "./lib/iterate-strings.mjs",
+			"require": "./lib/iterate-strings.cjs",
+			"types": "./lib/iterate-strings.d.ts"
+		},
+		"./iterator": {
+			"import": "./lib/iterator.mjs",
+			"require": "./lib/iterator.cjs",
+			"types": "./lib/iterator.d.ts"
+		},
+		"./queuable": {
+			"import": "./lib/queuable.mjs",
+			"require": "./lib/queuable.cjs",
+			"types": "./lib/queuable.d.ts"
+		},
+		"./readable": {
+			"import": "./lib/readable.mjs",
+			"require": "./lib/readable.cjs",
+			"types": "./lib/readable.d.ts"
+		},
+		"./search": {
+			"import": "./lib/search.mjs",
+			"require": "./lib/search.cjs",
+			"types": "./lib/search.d.ts"
+		},
+		"./split": {
+			"import": "./lib/split.mjs",
+			"require": "./lib/split.cjs",
+			"types": "./lib/split.d.ts"
+		}
+	}
 }
