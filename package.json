@@ -58,6 +58,11 @@
       "require": "./lib/iterate-strings.cjs",
       "types": "./lib/iterate-strings.d.ts"
     },
+    "./iterator": {
+      "import": "./lib/iterator.mjs",
+      "require": "./lib/iterator.cjs",
+      "types": "./lib/iterator.d.ts"
+    },
     "./queuable": {
       "import": "./lib/queuable.mjs",
       "require": "./lib/queuable.cjs",

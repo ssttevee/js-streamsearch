@@ -6,6 +6,7 @@ export default {
         'src/iterate-chunks.ts',
         'src/iterate-chunks-concatted.ts',
         'src/iterate-strings.ts',
+        'src/iterator.ts',
         'src/queueable.ts',
         'src/readable.ts',
         'src/search.ts',

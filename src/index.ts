@@ -17,6 +17,7 @@ export * from './iterate-chunks.js';
 export * from './iterate-chunks-concatted.js';
 export * from './iterate-strings.js';
 
+export * from './iterator.js';
 export * from './queueable.js';
 export * from './readable.js';
 export * from './search.js';
