@@ -3,7 +3,7 @@ import { concat } from "uint8arrays/concat";
 import { MATCH, StreamSearch } from "./search.js";
 
 export function split(
-	chunks: Uint8Array | Uint8Array,
+	chunks: Uint8Array | Uint8Array[],
 	needle: Uint8Array | string,
 ): Uint8Array[] {
 	const search = new StreamSearch(needle);
