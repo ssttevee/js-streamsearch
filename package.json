@@ -1,6 +1,6 @@
 {
 	"name": "@ssttevee/streamsearch",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"type": "module",
 	"description": "A port of streamsearch for es modules using Web APIs",
 	"main": "lib/index.js",
