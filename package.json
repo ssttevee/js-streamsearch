@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test": "tap run",
-    "coverage": "nyc -a -n src/**/*.ts -x src/**/*.test.ts -e .ts -r lcov -r text npm test",
+    "coverage": "npm run test --  --coverage-report=lcov --coverage-report=text",
     "fuzz": "ts-node testing/fuzz.ts",
     "build": "rollup -c && tsc -d --emitDeclarationOnly --declarationDir lib",
     "prepack": "npm run build"
@@ -27,7 +27,6 @@
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/tap": "^18.0.0",
     "esm": "^3.2.25",
-    "nyc": "^17.1.0",
     "rollup": "^4.57.0",
     "tap": "^21.5.0",
     "ts-node": "^10.9.2",
