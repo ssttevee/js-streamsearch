@@ -4,6 +4,7 @@ import t, { type Test } from 'tap';
 import { allStrings, iterateChunksConcatted, split } from './index.js';
 import { QueueableStreamSearch } from './queueable.js';
 import { ReadableStreamSearch } from './readable.js';
+import { IteratorStreamSearch } from './iterator.js';
 import type { Token } from './search.js';
 
 async function testSuite(t: Test, makeIter: (needle: string, chunks: string[]) => AsyncIterable<Token>, needle: string, payload: string, expected: string[]): Promise<void> {
@@ -64,6 +65,19 @@ t.test('queueable', async function (t: Test): Promise<void> {
         s.push(...chunks.map((chunk) => u8.fromString(chunk)));
         s.close();
         return s;
+    }
+
+    await testSuite(t, makeIter, 'z', '12345z67890', ['12345', '67890']);
+    await testSuite(t, makeIter, 'ab', '12a45678a', ['12a45678a']);
+});
+
+t.test('iterator', async function (t: Test): Promise<void> {
+    function makeIter(needle: string, chunks: string[]): IteratorStreamSearch {
+        return new IteratorStreamSearch(needle, (async function* () {
+            for (const chunk of chunks) {
+                yield u8.fromString(chunk);
+            }
+        })());
     }
 
     await testSuite(t, makeIter, 'z', '12345z67890', ['12345', '67890']);
