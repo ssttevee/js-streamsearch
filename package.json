@@ -36,5 +36,47 @@
   },
   "dependencies": {
     "uint8arrays": "^5.1.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs",
+      "types": "./lib/index.d.ts"
+    },
+    "./iterate-chunks": {
+      "import": "./lib/iterate-chunks.mjs",
+      "require": "./lib/iterate-chunks.cjs",
+      "types": "./lib/iterate-chunks.d.ts"
+    },
+    "./iterate-chunks-concatted": {
+      "import": "./lib/iterate-chunks-concatted.mjs",
+      "require": "./lib/iterate-chunks-concatted.cjs",
+      "types": "./lib/iterate-chunks-concatted.d.ts"
+    },
+    "./iterate-strings": {
+      "import": "./lib/iterate-strings.mjs",
+      "require": "./lib/iterate-strings.cjs",
+      "types": "./lib/iterate-strings.d.ts"
+    },
+    "./queuable": {
+      "import": "./lib/queuable.mjs",
+      "require": "./lib/queuable.cjs",
+      "types": "./lib/queuable.d.ts"
+    },
+    "./readable": {
+      "import": "./lib/readable.mjs",
+      "require": "./lib/readable.cjs",
+      "types": "./lib/readable.d.ts"
+    },
+    "./search": {
+      "import": "./lib/search.mjs",
+      "require": "./lib/search.cjs",
+      "types": "./lib/search.d.ts"
+    },
+    "./split": {
+      "import": "./lib/split.mjs",
+      "require": "./lib/split.cjs",
+      "types": "./lib/split.d.ts"
+    }
   }
 }

@@ -1,7 +1,7 @@
 import * as u8 from 'uint8arrays';
 import t, { type Test } from 'tap';
 
-import { allStrings, arrayIterator, split } from './index.js';
+import { allStrings, iterateChunksConcatted, split } from './index.js';
 import { QueueableStreamSearch } from './queueable.js';
 import { ReadableStreamSearch } from './readable.js';
 import type { Token } from './search.js';
@@ -15,7 +15,7 @@ async function testSuite(t: Test, makeIter: (needle: string, chunks: string[]) =
                 expected,
             );
 
-            const iter = arrayIterator(makeIter(needle, chunks));
+            const iter = iterateChunksConcatted(makeIter(needle, chunks));
             for (let i = 0; i < expected.length; i++) {
                 const { done, value } = await iter.next();
                 t.notOk(done);
